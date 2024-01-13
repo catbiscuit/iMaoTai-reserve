@@ -57,3 +57,11 @@ _RULES = {
     'MAX_SALES': 1,      # 预约本市出货量最大的门店
 }
 RESERVE_RULE = 0         # 在这里配置你的规则，只能选择其中一个
+
+'''
+*********** Bark推送 ***********
+秘钥有值时才发送
+图标传空或无法访问会使用默认图标
+'''
+BARK_DEVICEKEY = os.environ.get("BARK_DEVICEKEY")
+BARK_ICON = os.environ.get("BARK_ICON")
