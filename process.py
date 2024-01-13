@@ -244,14 +244,8 @@ def act_params(shop_id: str, item_id: str):
 
 # 消息推送
 def send_msg(title, content):
-    if config.PUSH_TOKEN is None:
-        return
-    url = 'http://www.pushplus.plus/send'
-    r = requests.get(url, params={'token': config.PUSH_TOKEN,
-                                  'title': title,
-                                  'content': content})
-    logging.info(f'通知推送结果：{r.status_code, r.text}')
-
+    bark(config.BARK_DEVICEKEY, title, content, config.BARK_ICON)
+    pushplus(title, content)
 
 # 核心代码，执行预约
 def reservation(params: dict, mobile: str):
@@ -336,3 +330,48 @@ def getUserEnergyAward(mobile: str):
     # response.json().get('message') if '无法领取奖励' in response.text else "领取奖励成功"
     logging.info(
         f'领取耐力 : mobile:{mobile} :  response code : {response.status_code}, response body : {response.text}')
+
+
+# 推送消息
+def pushplus(title: str, content: str):
+    if config.PUSH_TOKEN is None:
+        return
+    url = 'http://www.pushplus.plus/send'
+    r = requests.get(url, params={'token': config.PUSH_TOKEN,
+                                  'title': title,
+                                  'content': content})
+    logging.info(f'通知推送结果：{r.status_code, r.text}')
+
+
+# 推送bark
+def bark(device_key, title, content, bark_icon):
+    if not device_key:
+        return 2
+
+    url = "https://api.day.app/push"
+    headers = {
+        "content-type": "application/json",
+        "charset": "utf-8"
+    }
+    data = {
+        "title": title,
+        "body": content,
+        "device_key": device_key
+    }
+
+    if not bark_icon:
+        bark_icon = ''
+    if len(bark_icon) > 0:
+        url += '?icon=' + bark_icon
+        print('拼接icon')
+    else:
+        print('不拼接icon')
+
+    resp = requests.post(url, headers=headers, data=json.dumps(data))
+    resp_json = resp.json()
+    if resp_json["code"] == 200:
+        print(f"[Bark]Send message to Bark successfully.")
+    if resp_json["code"] != 200:
+        print(f"[Bark][Send Message Response]{resp.text}")
+        return -1
+    return 0
