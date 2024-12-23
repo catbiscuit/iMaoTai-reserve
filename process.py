@@ -256,7 +256,7 @@ def reservation(params: dict, mobile: str):
     #     send_msg('！！失败！！茅台预约', f'[{mobile}],登录token失效，需要重新登录')
     #     raise RuntimeError
 
-    msg = f'预约:{desensitize_user_name(mobile)};Code:{responses.status_code};Body:{responses.text};'
+    msg = f'预约:{desensitize_str(mobile)};Code:{responses.status_code};'
     logging.info(msg)
 
     # 如果是成功，推送消息简化；失败消息则全量推送
@@ -329,7 +329,7 @@ def getUserEnergyAward(mobile: str):
                              headers=headers, json={})
     # response.json().get('message') if '无法领取奖励' in response.text else "领取奖励成功"
     logging.info(
-        f'领取耐力 : mobile:{desensitize_user_name(mobile)} :  response code : {response.status_code}, response body : {response.text}')
+        f'领取耐力 : mobile:{desensitize_str(mobile)} :  response code : {response.status_code}')
 
 
 # 推送消息
@@ -377,7 +377,7 @@ def bark(device_key, title, content, bark_icon):
     return 0
 
 
-def desensitize_user_name(str):
+def desensitize_str(str):
     if len(str) <= 8:
         ln = max(math.floor(len(str) / 3), 1)
         return f'{str[:ln]}*{str[-ln:]}'
