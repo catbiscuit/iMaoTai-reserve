@@ -1,15 +1,15 @@
 import datetime
+import hashlib
 import json
+import logging
 import math
-import os
 import random
-import re
 import time
+
+import requests
+
 import config
 from encrypt import Encrypt
-import requests
-import hashlib
-import logging
 
 AES_KEY = 'qbhajinldepmucsonaaaccgypwuvcjaa'
 AES_IV = '2018534749963515'
@@ -256,7 +256,7 @@ def reservation(params: dict, mobile: str):
     #     send_msg('！！失败！！茅台预约', f'[{mobile}],登录token失效，需要重新登录')
     #     raise RuntimeError
 
-    msg = f'预约:{mobile};Code:{responses.status_code};Body:{responses.text};'
+    msg = f'预约:{desensitize_user_name(mobile)};Code:{responses.status_code};Body:{responses.text};'
     logging.info(msg)
 
     # 如果是成功，推送消息简化；失败消息则全量推送
@@ -329,7 +329,7 @@ def getUserEnergyAward(mobile: str):
                              headers=headers, json={})
     # response.json().get('message') if '无法领取奖励' in response.text else "领取奖励成功"
     logging.info(
-        f'领取耐力 : mobile:{mobile} :  response code : {response.status_code}, response body : {response.text}')
+        f'领取耐力 : mobile:{desensitize_user_name(mobile)} :  response code : {response.status_code}, response body : {response.text}')
 
 
 # 推送消息
@@ -375,3 +375,10 @@ def bark(device_key, title, content, bark_icon):
         print(f"[Bark][Send Message Response]{resp.text}")
         return -1
     return 0
+
+
+def desensitize_user_name(str):
+    if len(str) <= 8:
+        ln = max(math.floor(len(str) / 3), 1)
+        return f'{str[:ln]}*{str[-ln:]}'
+    return f'{str[:2]}*{str[-2:]}'
